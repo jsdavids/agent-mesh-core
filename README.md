@@ -37,6 +37,16 @@ skips auth, policy or audit.
 | Tracing | OpenTelemetry spans for the gateway and for each agent, which continue the caller's `traceparent`, exported over OTLP/HTTP to Jaeger or Arize Phoenix. |
 | Metrics | `GET /metrics` reports decision counts (e.g. blocked calls) and gateway overhead p50/p95/p99, separate from upstream time. |
 
+## Projects built on it
+
+- [reglab-regulatory-agents](https://github.com/jsdavids/reglab-regulatory-agents): eCFR research agents with a hand-label eval
+- [gs-filings-audit](https://github.com/jsdavids/gs-filings-audit): SEC EDGAR agents with a signed risk-approval release gate
+- [ibm-contextforge-legacy](https://github.com/jsdavids/ibm-contextforge-legacy): a legacy REST service behind IBM ContextForge
+
+They depend on a release tag, not on `main`:
+`agentmesh @ https://github.com/jsdavids/agent-mesh-core/archive/refs/tags/v0.1.0.tar.gz`.
+To release a change, tag it (`git tag -a v0.2.0 && git push origin v0.2.0`) and bump that URL in each project.
+
 ## Layout
 
 ```
@@ -98,7 +108,7 @@ into a float. That matters when the integers are CIKs or dollar amounts.
 Writing the gateway is the learning exercise, and it lets the Goldman project
 put audit hashing inside the gateway. For production, the same `mesh.yaml`
 concepts map onto [agentgateway](https://agentgateway.dev) (JWT, CEL-based RBAC
-over MCP and A2A, OTel) or IBM ContextForge (see `../ibm-contextforge-legacy`).
+over MCP and A2A, OTel) or IBM ContextForge (see [ibm-contextforge-legacy](https://github.com/jsdavids/ibm-contextforge-legacy)).
 
 ## Known limits
 
