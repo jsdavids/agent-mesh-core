@@ -1,0 +1,29 @@
+# Run from this directory:
+#   export AGENTMESH_SECRET=$(python -c "import secrets; print(secrets.token_urlsafe(48))")
+#   agentmesh up mesh.yaml
+#   python call.py
+gateway:
+  port: 8000
+
+mcp_servers:
+  math: {url: "http://127.0.0.1:9101/mcp"}
+
+agents:
+  calculator: {url: "http://127.0.0.1:9201"}
+
+principals:
+  orchestrator:
+    agents: [calculator]
+  calculator:
+    mcp:
+      math: [add, multiply]   # reset_database is never reachable
+
+services:
+  - {name: math, app: "hello_mesh:mcp", port: 9101}
+  - {name: calculator, app: "hello_mesh:calculator", port: 9201, principal: calculator}
+
+audit:
+  path: audit/gateway.jsonl
+
+tracing:
+  exporter: none   # console | otlp (set endpoint: http://localhost:4318/v1/traces for Jaeger)
