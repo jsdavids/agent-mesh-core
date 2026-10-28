@@ -23,6 +23,7 @@ from mcp.client.streamable_http import streamable_http_client
 from agentmesh.tracing import inject_headers
 
 JSON_MEDIA = "application/json"
+MAX_EVENT_BYTES = 64 * 1024 * 1024
 
 
 class AgentCallError(Exception):
@@ -61,14 +62,19 @@ class McpTools:
 
 
 @contextlib.asynccontextmanager
-async def mcp_session(url: str, token: str | None = None) -> AsyncIterator[McpTools]:
+async def mcp_session(url: str, token: str | None = None,
+                      max_event_bytes: int | None = MAX_EVENT_BYTES) -> AsyncIterator[McpTools]:
     """MCP session against any Streamable HTTP endpoint (this mesh's gateway,
-    IBM ContextForge's /servers/{id}/mcp, ...), with a bearer token."""
+    IBM ContextForge's /servers/{id}/mcp, ...), with a bearer token.
+
+    The SDK caps one SSE event at 1 MB; a tool returning a whole document
+    (a CFR part is 9-18 MB) needs more, so the default here is 64 MB."""
     headers = inject_headers({"authorization": f"Bearer {token}"} if token else {})
     http = httpx2.AsyncClient(headers=headers, timeout=httpx2.Timeout(30.0, read=300.0))
     try:
         async with http:
-            async with McpClient(streamable_http_client(url, http_client=http), raise_exceptions=True) as client:
+            transport = streamable_http_client(url, http_client=http, max_sse_event_size=max_event_bytes)
+            async with McpClient(transport, raise_exceptions=True) as client:
                 yield McpTools(client)
     except BaseExceptionGroup as group:
         # the MCP client's task group wraps whatever the body raised

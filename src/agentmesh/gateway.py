@@ -42,7 +42,6 @@ from agentmesh.serve import UPSTREAM_KEY_ENV, UPSTREAM_KEY_HEADER
 from agentmesh.tracing import current_trace_id, extract_context, inject_headers, setup_tracing
 
 PRINCIPAL_HEADER = "x-agentmesh-principal"
-MAX_BODY_BYTES = 8 * 1024 * 1024
 FORBIDDEN = -32001  # JSON-RPC server-defined error range
 AGENT_CARD_PATH = "/.well-known/agent-card.json"
 
@@ -200,7 +199,7 @@ class Gateway:
 
     async def _read_rpc(self, request: Request) -> tuple[bytes, list[dict[str, Any]]]:
         body = await request.body()
-        if len(body) > MAX_BODY_BYTES:
+        if len(body) > self.config.gateway.max_body_mb * 1024 * 1024:
             raise ValueError("request body too large")
         if not body:
             return body, []

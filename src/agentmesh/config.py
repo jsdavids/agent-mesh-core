@@ -75,6 +75,7 @@ class GatewaySettings:
     audience: str = "agentmesh-gateway"
     secret_env: str = "AGENTMESH_SECRET"
     public_url: str | None = None
+    max_body_mb: int = 32  # largest request body (an A2A payload or MCP tool arguments)
     # A2A methods any permitted caller may use; push-notification config is
     # left out by default because it makes the agent call arbitrary URLs.
     a2a_methods: list[str] = field(

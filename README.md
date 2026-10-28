@@ -105,3 +105,4 @@ over MCP and A2A, OTel) or IBM ContextForge (see `../ibm-contextforge-legacy`).
 - HS256 with one shared secret between the launcher and the gateway. Moving to RS256/EdDSA with a JWKS endpoint is a contained change in `auth.py`.
 - A2A tasks aren't bound to principals, so one principal that knows another's task ID could `GetTask` it. The gateway does pass `x-agentmesh-principal` upstream for that check.
 - JSON-RPC binding only (no A2A REST or gRPC through the gateway).
+- Size limits are set for document-sized payloads: `gateway.max_body_mb` (default 32) caps request bodies, and `mcp_session` raises the MCP SDK's 1 MB per-SSE-event cap to 64 MB. A whole CFR part is 9–18 MB of JSON. Prefer reducing what agents pass around (the RegLab retriever sends extracted requirements, not full text).
